@@ -3,52 +3,53 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Audit the AI-native readiness of this ML.NET repository",
-      "expected_output": "A structured audit report showing L4 or L5 level with scores per layer, since ML.NET has a complete AI-native setup",
+      "prompt": "Audit this repo. It has no AI-native files at all — no AGENTS.md, no .github/agents/, no copilot-instructions.md, nothing.",
+      "expected_output": "L0 score with 0/24 points and recommendation to start with foundation layer.",
       "expectations": [
-        "The audit checked for AGENTS.md, CLAUDE.md, and copilot-instructions.md",
-        "The audit checked for agent files in .github/agents/",
-        "The audit checked for prompt files in .github/prompts/",
-        "The audit checked for copilot-setup-steps.yml",
-        "The output includes a score table with Foundation, Skills, Agents, Orchestration, and Automation layers",
-        "The overall level is L4 or L5 (ML.NET has a complete setup)",
-        "The output includes a gap analysis section",
-        "The output includes prioritized recommendations"
+        "Overall level is reported as L0",
+        "Total score is 0/24",
+        "All layer scores are 0",
+        "The Missing section lists AGENTS.md and copilot-instructions.md as the first files to create",
+        "Next Steps recommends creating foundation files first, not jumping to agents"
       ]
     },
     {
       "id": 2,
-      "prompt": "Audit a repo that only has a README.md and source code — no AI-native files at all",
-      "expected_output": "Report showing L0 with all layers scored at 0 and recommendations to start with foundation layer",
+      "prompt": "Audit this repo. It has AGENTS.md with real build commands, a directory tree, and test patterns. It has copilot-instructions.md with correct build/test commands and conventions. No prompts, no agents, no CI.",
+      "expected_output": "L1 with 5-6 foundation points, 0 in other layers, recommendation to add prompts next.",
       "expectations": [
-        "The overall level is L0 (Unaware)",
-        "All layer scores are 0 or near 0",
-        "The gap analysis lists AGENTS.md, CLAUDE.md, and copilot-instructions.md as missing",
-        "The first recommendation is to create the foundation layer files",
-        "The audit does NOT give credit for files that don't exist"
+        "Overall level is L1 (not L2, since no skills layer)",
+        "Foundation score is 5 or 6 (high, since content is good)",
+        "Skills score is 0",
+        "Agents score is 0",
+        "Next Steps recommends adding .github/prompts/ as the path to L2",
+        "The output format matches the specified template with Layer/Score/Max/Status table"
       ]
     },
     {
       "id": 3,
-      "prompt": "Audit a repo that has copilot-instructions.md with correct build commands but nothing else",
-      "expected_output": "Report showing L1-partial with foundation partially complete, all other layers at 0",
+      "prompt": "Audit this repo. It has a full bootstrap: AGENTS.md, copilot-instructions.md, 6 agents, 3 prompts, orchestrator, CI workflow, pre-commit hook, and MCP config. All files contain repo-specific content with real build commands and test examples.",
+      "expected_output": "L5 with high scores across all layers, possibly minor gaps identified.",
       "expectations": [
-        "The overall level is L1",
-        "Foundation layer has a partial score (not 0, not full)",
-        "Skills, Agents, Orchestration, Automation layers are all 0",
-        "The audit verified that the build commands in copilot-instructions.md are correct",
-        "Recommendations start with completing the foundation layer"
+        "Overall level is L4 or L5",
+        "Foundation score is 5 or 6",
+        "Agents score is 4 or 5",
+        "Orchestration score is 4 or 5",
+        "The Incomplete section identifies any minor gaps even in a well-bootstrapped repo",
+        "Scores are not blindly perfect — the auditor should still find something to improve"
       ]
     },
     {
       "id": 4,
-      "prompt": "Audit a repo that has all the files but they contain generic placeholder content like {{PROJECT_NAME}}",
-      "expected_output": "Report showing low quality scores despite all files existing, flagging generic content",
+      "prompt": "Audit this repo. It has all 14 AI-native files, but they contain placeholder content: copilot-instructions.md says 'dotnet build' when the repo uses build.sh, test-writer agent shows a generic xUnit example that doesn't exist in the repo, and security-reviewer lists web API threats but this is a class library.",
+      "expected_output": "Low scores despite file count. Quality failures identified specifically for each file.",
       "expectations": [
-        "The audit detected that files contain placeholder/generic content",
-        "Quality scores are low despite files existing",
-        "The gap analysis specifically mentions generic content as a deficiency",
-        "Recommendations include customizing files with repo-specific patterns"
+        "Overall level is L1 or lower despite having all files",
+        "Foundation score is low (penalized for wrong build command)",
+        "Agent scores are low (penalized for generic/wrong content)",
+        "The Incomplete section specifically calls out: wrong build command, fabricated test example, mismatched security surfaces",
+        "The audit does NOT give high scores just because files exist",
+        "Each quality failure references the specific file and the specific problem"
       ]
     }
   ]

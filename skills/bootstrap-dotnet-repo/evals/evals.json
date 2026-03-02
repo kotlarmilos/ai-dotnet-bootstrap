@@ -3,60 +3,63 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Bootstrap this ML.NET repository with a full AI-native layer",
-      "expected_output": "14 files generated across 5 layers, all customized with ML.NET-specific patterns (Contracts.Check*, IChannel, BaseTestClass, xUnit, ./build.sh)",
+      "prompt": "Bootstrap this ML.NET-style repo. It has build.sh, xUnit tests with a TestBase class using ITestOutputHelper, Contracts.Check for validation, IChannel for logging, and src/ with multiple class library projects.",
+      "expected_output": "14 AI-native files generated, all using discovered patterns (build.sh, xUnit, Contracts.Check, IChannel).",
       "expectations": [
-        "AGENTS.md was created or verified at the repo root",
-        "CLAUDE.md was created or verified at the repo root",
-        ".github/copilot-instructions.md was created or verified",
-        "At least 5 agent files exist in .github/agents/ with valid YAML frontmatter containing 'name' and 'description'",
-        "At least 2 prompt files exist in .github/prompts/ with 'mode: agent' in frontmatter",
-        ".github/workflows/copilot-setup-steps.yml exists and contains a build step",
-        ".github/hooks/copilot-pre-commit.sh exists and is executable",
-        "AGENTS.md contains a real test example copied from the repo (not a generic placeholder)",
-        "copilot-instructions.md contains the correct build command for this repo",
-        "The implementer agent references the repo's actual validation pattern (Contracts.Check* for ML.NET)",
-        "The test-writer agent references the repo's actual test base class (BaseTestClass for ML.NET)",
-        "The security-reviewer agent mentions native interop risks (specific to ML.NET)"
+        "AGENTS.md exists and contains a directory tree of src/ and test/",
+        "AGENTS.md contains a real test example using xUnit with ITestOutputHelper, not a fabricated one",
+        "AGENTS.md mentions the agent pipeline: plan, implement, test, review, consolidate",
+        ".github/copilot-instructions.md references build.sh as the build command, not 'dotnet build'",
+        ".github/copilot-instructions.md mentions Contracts.Check as the validation pattern",
+        "orchestrator.agent.md has YAML frontmatter with name, description, and tools",
+        "orchestrator.agent.md references build.sh for build verification",
+        "implementer.agent.md references Contracts.Check for validation and IChannel for logging",
+        "test-writer.agent.md specifies xUnit as the test framework and shows TestBase with ITestOutputHelper",
+        "security-reviewer.agent.md covers class library threats (deserialization, path traversal), not web API threats",
+        "fix-build.prompt.md has mode: agent frontmatter",
+        "copilot-setup-steps.yml uses build.sh, not dotnet build",
+        "copilot-pre-commit.sh includes format check and secrets scan",
+        "No files contain unfilled placeholders like {{PROJECT_NAME}} or [discovered build command]"
       ]
     },
     {
       "id": 2,
-      "prompt": "I have a brand new ASP.NET Core Web API project with xUnit tests and ILogger. Make it AI-native.",
-      "expected_output": "14 files generated with ASP.NET Core-specific customizations: ILogger<T> logging, middleware patterns, XSS/CSRF security surfaces",
+      "prompt": "Bootstrap this ASP.NET Core 8 Web API project. It uses dotnet build (no custom script), NUnit for tests with [SetUp] methods, FluentValidation, Serilog, and has controllers in src/MyApi/Controllers/.",
+      "expected_output": "14 AI-native files generated with web API security model, NUnit patterns, FluentValidation, and Serilog references.",
       "expectations": [
-        "The discovery phase ran commands to detect the stack before generating files",
-        "copilot-instructions.md mentions 'dotnet build' as the build command (no build.sh for typical ASP.NET projects)",
-        "The implementer agent references ILogger<T> for logging (not IChannel)",
-        "The security-reviewer agent mentions XSS, CSRF, SQL injection (web-specific threats)",
-        "The test-writer agent references xUnit patterns with the correct base class discovered from the repo",
-        "No existing files were overwritten (check-before-create behavior)",
-        "A structured completion report was output listing all files created"
+        "copilot-instructions.md uses 'dotnet build' since no custom build script exists",
+        "test-writer.agent.md specifies NUnit with [Test] attributes and [SetUp] methods, not xUnit",
+        "implementer.agent.md references FluentValidation for input validation",
+        "implementer.agent.md references Serilog for logging",
+        "security-reviewer.agent.md covers web API threats: XSS, CSRF, SQLi, auth bypass",
+        "security-reviewer.agent.md does NOT primarily cover class library threats",
+        "AGENTS.md directory tree shows src/MyApi/Controllers/",
+        "All agent files have valid YAML frontmatter with name field"
       ]
     },
     {
       "id": 3,
-      "prompt": "This repo already has AGENTS.md and copilot-instructions.md but no agents directory. Add the missing pieces.",
-      "expected_output": "Only missing files created; existing files enhanced rather than replaced",
+      "prompt": "This repo already has an AGENTS.md and copilot-instructions.md but no .github/agents/ directory. Add the agent layer without replacing existing files.",
+      "expected_output": "Agent files created in .github/agents/, existing AGENTS.md and copilot-instructions.md preserved or enhanced.",
       "expectations": [
-        "The skill detected existing AGENTS.md and copilot-instructions.md",
-        "AGENTS.md was NOT overwritten or replaced",
-        "copilot-instructions.md was NOT overwritten or replaced",
-        "Agent files were created in .github/agents/",
-        "Prompt files were created in .github/prompts/",
-        "The completion report mentions that existing files were preserved"
+        "Existing AGENTS.md was NOT overwritten or replaced",
+        "Existing copilot-instructions.md was NOT overwritten or replaced",
+        ".github/agents/orchestrator.agent.md was created",
+        ".github/agents/planner.agent.md was created",
+        ".github/agents/test-writer.agent.md was created",
+        "Agent files reference patterns consistent with the existing AGENTS.md content"
       ]
     },
     {
       "id": 4,
-      "prompt": "Bootstrap a .NET class library that uses NUnit and Guard clauses. It has no build scripts, just dotnet build.",
-      "expected_output": "Files customized for NUnit test patterns, Guard.Against validation, and simple dotnet build",
+      "prompt": "Bootstrap this monorepo that has three .sln files: src/Core/Core.sln, src/Api/Api.sln, and src/Worker/Worker.sln. Each uses MSTest.",
+      "expected_output": "14 AI-native files covering all three solutions with MSTest patterns throughout.",
       "expectations": [
-        "The test-writer agent uses [Test] and [TestCase] attributes (NUnit, not xUnit's [Fact]/[Theory])",
-        "The test-writer agent uses Assert.That assertion style (NUnit, not Assert.Equal)",
-        "The implementer agent references Guard.Against.Null pattern (not Contracts.Check*)",
-        "copilot-instructions.md shows 'dotnet build' as the build command",
-        "The security-reviewer agent mentions deserialization and path traversal (library threats, not web threats)"
+        "AGENTS.md describes all three solutions (Core, Api, Worker) with their purposes",
+        "copilot-instructions.md lists build commands for all three solutions or a unified build approach",
+        "test-writer.agent.md uses MSTest attributes ([TestMethod], Assert.AreEqual)",
+        "orchestrator.agent.md handles multi-solution build verification",
+        "The generated files do not focus exclusively on one solution while ignoring the others"
       ]
     }
   ]
