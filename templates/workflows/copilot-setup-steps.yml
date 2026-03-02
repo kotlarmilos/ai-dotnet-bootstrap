@@ -1,0 +1,26 @@
+name: "Copilot Setup Steps"
+on: workflow_dispatch
+
+jobs:
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "{{DOTNET_VERSION}}"
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: "{{BUILD_COMMAND}}"
+
+      - name: Smoke Test
+        run: "{{SMOKE_TEST_COMMAND}}"

@@ -1,0 +1,63 @@
+{
+  "skill_name": "bootstrap-dotnet-repo",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Bootstrap this ML.NET repository with a full AI-native layer",
+      "expected_output": "14 files generated across 5 layers, all customized with ML.NET-specific patterns (Contracts.Check*, IChannel, BaseTestClass, xUnit, ./build.sh)",
+      "expectations": [
+        "AGENTS.md was created or verified at the repo root",
+        "CLAUDE.md was created or verified at the repo root",
+        ".github/copilot-instructions.md was created or verified",
+        "At least 5 agent files exist in .github/agents/ with valid YAML frontmatter containing 'name' and 'description'",
+        "At least 2 prompt files exist in .github/prompts/ with 'mode: agent' in frontmatter",
+        ".github/workflows/copilot-setup-steps.yml exists and contains a build step",
+        ".github/hooks/copilot-pre-commit.sh exists and is executable",
+        "AGENTS.md contains a real test example copied from the repo (not a generic placeholder)",
+        "copilot-instructions.md contains the correct build command for this repo",
+        "The implementer agent references the repo's actual validation pattern (Contracts.Check* for ML.NET)",
+        "The test-writer agent references the repo's actual test base class (BaseTestClass for ML.NET)",
+        "The security-reviewer agent mentions native interop risks (specific to ML.NET)"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I have a brand new ASP.NET Core Web API project with xUnit tests and ILogger. Make it AI-native.",
+      "expected_output": "14 files generated with ASP.NET Core-specific customizations: ILogger<T> logging, middleware patterns, XSS/CSRF security surfaces",
+      "expectations": [
+        "The discovery phase ran commands to detect the stack before generating files",
+        "copilot-instructions.md mentions 'dotnet build' as the build command (no build.sh for typical ASP.NET projects)",
+        "The implementer agent references ILogger<T> for logging (not IChannel)",
+        "The security-reviewer agent mentions XSS, CSRF, SQL injection (web-specific threats)",
+        "The test-writer agent references xUnit patterns with the correct base class discovered from the repo",
+        "No existing files were overwritten (check-before-create behavior)",
+        "A structured completion report was output listing all files created"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "This repo already has AGENTS.md and copilot-instructions.md but no agents directory. Add the missing pieces.",
+      "expected_output": "Only missing files created; existing files enhanced rather than replaced",
+      "expectations": [
+        "The skill detected existing AGENTS.md and copilot-instructions.md",
+        "AGENTS.md was NOT overwritten or replaced",
+        "copilot-instructions.md was NOT overwritten or replaced",
+        "Agent files were created in .github/agents/",
+        "Prompt files were created in .github/prompts/",
+        "The completion report mentions that existing files were preserved"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Bootstrap a .NET class library that uses NUnit and Guard clauses. It has no build scripts, just dotnet build.",
+      "expected_output": "Files customized for NUnit test patterns, Guard.Against validation, and simple dotnet build",
+      "expectations": [
+        "The test-writer agent uses [Test] and [TestCase] attributes (NUnit, not xUnit's [Fact]/[Theory])",
+        "The test-writer agent uses Assert.That assertion style (NUnit, not Assert.Equal)",
+        "The implementer agent references Guard.Against.Null pattern (not Contracts.Check*)",
+        "copilot-instructions.md shows 'dotnet build' as the build command",
+        "The security-reviewer agent mentions deserialization and path traversal (library threats, not web threats)"
+      ]
+    }
+  ]
+}
