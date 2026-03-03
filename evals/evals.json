@@ -1,60 +1,35 @@
-[
-  {
-    "id": "dotnet-console-app",
-    "description": "Bootstrap a minimal .NET console app repo",
-    "prompt": "Bootstrap AI infrastructure for this repo",
-    "expected_behavior": [
-      "Detects .NET version from global.json",
-      "Creates copilot-instructions.md with build commands",
-      "Creates copilot-setup-steps.yml",
-      "Copies universal skills (pr-finalize, issue-triage, etc.)",
-      "Does NOT create platform-specific instructions"
-    ]
-  },
-  {
-    "id": "aspnet-web-api",
-    "description": "Bootstrap an ASP.NET Web API with xUnit tests",
-    "prompt": "Set up AI development environment for this ASP.NET API repo",
-    "expected_behavior": [
-      "Detects xUnit test framework from NuGet references",
-      "Creates write-tests-agent with xUnit convention",
-      "Creates run-tests skill with correct test project paths",
-      "Creates copilot-setup-steps.yml with dotnet restore + build",
-      "Detects GitHub Actions CI and configures pr-build-status for GH Actions"
-    ]
-  },
-  {
-    "id": "maui-cross-platform",
-    "description": "Bootstrap a .NET MAUI cross-platform app",
-    "prompt": "Bootstrap AI infrastructure for this MAUI repo",
-    "expected_behavior": [
-      "Detects platform-specific code (*.android.cs, *.ios.cs)",
-      "Creates platform-scoped instructions for Android and iOS",
-      "Detects multiple test projects (unit, device, UI tests)",
-      "Creates copilot-setup-steps with workload install",
-      "Configures pr-build-status for Azure DevOps (if eng/ pipeline found)"
-    ]
-  },
-  {
-    "id": "existing-ai-files",
-    "description": "Repo that already has partial AI setup",
-    "prompt": "Onboard AI features for this repo",
-    "expected_behavior": [
-      "Detects existing copilot-instructions.md",
-      "Asks user before overwriting or merging",
-      "Only adds missing skills/agents",
-      "Does not duplicate existing workflows"
-    ]
-  },
-  {
-    "id": "azure-devops-ci",
-    "description": "Repo using Azure DevOps for CI (not GitHub Actions)",
-    "prompt": "Bootstrap AI infrastructure",
-    "expected_behavior": [
-      "Detects azure-pipelines.yml or eng/pipelines/ directory",
-      "Configures pr-build-status with Azure DevOps API commands",
-      "Still creates copilot-setup-steps.yml (GitHub-side)",
-      "Mentions AZDO_PAT requirement in instructions"
-    ]
-  }
-]
+{
+  "skill_name": "bootstrap-ai-native-dotnet",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I just cloned this .NET console app repo and I want Copilot to be able to help me with it properly. Can you set up the AI stuff?",
+      "expected_output": "Detects .NET version from global.json, creates copilot-instructions.md with actual build commands, creates copilot-setup-steps.yml, copies universal skills. Does NOT create platform-specific scoped instructions since this is a simple console app.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "ok so we have this ASP.NET Web API at work with about 200 xUnit tests across 3 test projects, all CI is on GitHub Actions. I'd love for the AI coding agent to actually understand our codebase when it reviews PRs. Can you bootstrap the AI infrastructure?",
+      "expected_output": "Detects xUnit from NuGet references, creates write-tests-agent configured for xUnit, creates run-tests skill with all 3 test project paths, configures pr-build-status for GitHub Actions with gh run view commands, creates scoped test instructions.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "This is dotnet/maui - a huge cross-platform .NET MAUI project. It has Android, iOS, and Windows code, multiple test frameworks (xUnit unit tests, NUnit UI tests), CI on Azure DevOps. Make it AI-native.",
+      "expected_output": "Detects platform-specific code patterns (*.Android.cs, *.iOS.cs), creates platform-scoped instructions for Android and iOS with type alias conventions, detects both xUnit and NUnit test projects, creates copilot-setup-steps with workload install, configures pr-build-status for Azure DevOps with AZDO API commands.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "We already have a copilot-instructions.md and a couple of skills set up, but I know we're missing a lot. Can you fill in the gaps?",
+      "expected_output": "Detects existing copilot-instructions.md and skills, asks user before overwriting or merging, only adds missing skills/agents/workflows, does not duplicate what already exists.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Our CI runs on Azure DevOps (not GitHub Actions) and we want the AI to be able to read build failures when it's working on PRs. Set up the full AI dev environment.",
+      "expected_output": "Detects azure-pipelines.yml or eng/pipelines/, configures pr-build-status with Azure DevOps REST API curl commands, still creates copilot-setup-steps.yml (that's GitHub-side), notes AZDO_PAT requirement in copilot-instructions.md.",
+      "files": []
+    }
+  ]
+}

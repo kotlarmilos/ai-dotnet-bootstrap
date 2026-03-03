@@ -154,14 +154,8 @@ Three things make this work:
 2. **`pr-build-status` skill** — Agent can read what failed and why
 3. **Clear test commands in instructions** — Agent knows how to run tests locally
 
-### Progressive Disclosure
+### File Layout
 
-Skills use a three-level loading system (from Anthropic's skill pattern):
-1. **Metadata** (name + description) — Always in context (~100 words)
-2. **SKILL.md body** — Loaded when skill triggers (<500 lines ideal)
-3. **References** — Loaded just-in-time when needed (unlimited)
-
-This toolkit follows the same pattern:
 - This SKILL.md is the entry point
-- `references/` has detailed guides read only when needed
-- `assets/` has the actual files to copy/template
+- `references/` has detailed guides — read only when needed
+- `assets/` has the actual files to copy or fill in
