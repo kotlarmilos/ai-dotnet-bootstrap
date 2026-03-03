@@ -54,12 +54,17 @@ Test command is always `dotnet test PROJECT` for .NET, but the project path and 
 ### 4. CI System
 
 ```bash
-# GitHub Actions
-ls .github/workflows/*.yml 2>/dev/null | head -10
-
-# Azure DevOps
+# Azure Pipelines
 ls azure-pipelines.yml 2>/dev/null
 find eng/pipelines -name "*.yml" 2>/dev/null | head -10
+
+# GitHub Actions
+ls .github/workflows/*.yml 2>/dev/null | head -10
+```
+
+For Azure Pipelines, extract the main pipeline definitions:
+```bash
+grep -l "trigger\|pr:" azure-pipelines.yml eng/pipelines/*.yml 2>/dev/null | head -3
 ```
 
 For GitHub Actions, extract the main CI workflow name:

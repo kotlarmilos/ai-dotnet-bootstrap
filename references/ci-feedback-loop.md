@@ -35,7 +35,7 @@ Push again → repeat until green
 
 **Extra steps to add** (if applicable):
 - `dotnet tool restore` — if the repo uses dotnet tools
-- Workload install — if the repo targets mobile/WASM (`dotnet workload install maui`)
+- Workload install — if the repo targets mobile/WASM
 - Node.js setup — if the repo has a JS/TS frontend
 
 ### 2. pr-build-status Skill (Read CI Results)
@@ -50,10 +50,29 @@ Push again → repeat until green
 **Template**: `assets/templates/pr-build-status.md`
 
 **Fill in**:
-- `{{CI_SYSTEM}}` — `github-actions` or `azure-devops`
-- `{{PIPELINE_NAMES}}` — Names of CI workflows/pipelines
+- `{{CI_SYSTEM}}` — `azure-pipelines` or `github-actions`
+- `{{PIPELINE_NAMES}}` — Names of CI pipelines/workflows
 
-**For GitHub Actions** (most common), the skill uses:
+**For Azure Pipelines**, the skill needs:
+- Organization URL (`{{ORG}}`) and project name (`{{PROJECT}}`)
+- A PAT token in `AZDO_PAT` environment variable
+- REST API calls to get build status and failed task logs
+
+```bash
+# List builds for a PR
+curl -s "https://dev.azure.com/{{ORG}}/{{PROJECT}}/_apis/build/builds?branchName=refs/pull/PR_NUM/merge&api-version=7.0" \
+  -H "Authorization: Basic $(echo -n :$AZDO_PAT | base64)" | jq '.value[] | {id, status, result}'
+
+# Get build timeline (shows failed tasks)
+curl -s "https://dev.azure.com/{{ORG}}/{{PROJECT}}/_apis/build/builds/BUILD_ID/timeline?api-version=7.0" \
+  -H "Authorization: Basic $(echo -n :$AZDO_PAT | base64)" | jq '.records[] | select(.result == "failed") | {name, issues}'
+
+# Get task log (actual error output)
+curl -s "https://dev.azure.com/{{ORG}}/{{PROJECT}}/_apis/build/builds/BUILD_ID/logs/LOG_ID?api-version=7.0" \
+  -H "Authorization: Basic $(echo -n :$AZDO_PAT | base64)" | tail -100
+```
+
+**For GitHub Actions**, the skill uses:
 ```bash
 # List recent runs for a PR branch
 gh run list --branch BRANCH --limit 5 --json databaseId,status,conclusion,name
@@ -64,11 +83,6 @@ gh run view RUN_ID --json jobs --jq '.jobs[] | select(.conclusion == "failure") 
 # Get failure logs (the key command)
 gh run view RUN_ID --log-failed 2>&1 | tail -100
 ```
-
-**For Azure DevOps**, the skill needs:
-- Organization URL and project name
-- API calls via `curl` with authentication
-- See the AzDO section in the template for details
 
 ### 3. ci-doctor Workflow (Optional — Auto-Diagnosis)
 

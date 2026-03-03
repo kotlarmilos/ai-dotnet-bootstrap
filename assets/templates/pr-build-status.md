@@ -7,6 +7,22 @@ description: "Read CI build results for a PR — which jobs failed, why, and wha
 
 The agent's ability to see CI results. Without this, agents push code blindly.
 
+## For Azure Pipelines
+
+```bash
+# List builds for a PR (requires AZDO_PAT env var)
+curl -s "https://dev.azure.com/{{ORG}}/{{PROJECT}}/_apis/build/builds?branchName=refs/pull/PR_NUM/merge&api-version=7.0" \
+  -H "Authorization: Basic $(echo -n :$AZDO_PAT | base64)" | jq '.value[] | {id, status, result}'
+
+# Get build timeline (shows failed tasks)
+curl -s "https://dev.azure.com/{{ORG}}/{{PROJECT}}/_apis/build/builds/BUILD_ID/timeline?api-version=7.0" \
+  -H "Authorization: Basic $(echo -n :$AZDO_PAT | base64)" | jq '.records[] | select(.result == "failed") | {name, issues}'
+
+# Get task log (actual error output)
+curl -s "https://dev.azure.com/{{ORG}}/{{PROJECT}}/_apis/build/builds/BUILD_ID/logs/LOG_ID?api-version=7.0" \
+  -H "Authorization: Basic $(echo -n :$AZDO_PAT | base64)" | tail -100
+```
+
 ## For GitHub Actions
 
 ```bash
@@ -21,18 +37,6 @@ gh run view RUN_ID --log-failed 2>&1 | tail -200
 
 # Get specific job log
 gh run view RUN_ID --log --job JOB_ID 2>&1 | tail -100
-```
-
-## For Azure DevOps
-
-```bash
-# List builds for a PR (requires AZDO_PAT env var)
-curl -s "https://dev.azure.com/{{ORG}}/{{PROJECT}}/_apis/build/builds?branchName=refs/pull/PR_NUM/merge&api-version=7.0" \
-  -H "Authorization: Basic $(echo -n :$AZDO_PAT | base64)" | jq '.value[] | {id, status, result}'
-
-# Get build timeline (shows failed tasks)
-curl -s "https://dev.azure.com/{{ORG}}/{{PROJECT}}/_apis/build/builds/BUILD_ID/timeline?api-version=7.0" \
-  -H "Authorization: Basic $(echo -n :$AZDO_PAT | base64)" | jq '.records[] | select(.result == "failed") | {name, issues}'
 ```
 
 ## Output Format

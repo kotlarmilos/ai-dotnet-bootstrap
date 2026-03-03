@@ -15,8 +15,8 @@
     },
     {
       "id": 3,
-      "prompt": "This is dotnet/maui - a huge cross-platform .NET MAUI project. It has Android, iOS, and Windows code, multiple test frameworks (xUnit unit tests, NUnit UI tests), CI on Azure DevOps. Make it AI-native.",
-      "expected_output": "Detects platform-specific code patterns (*.Android.cs, *.iOS.cs), creates platform-scoped instructions for Android and iOS with type alias conventions, detects both xUnit and NUnit test projects, creates copilot-setup-steps with workload install, configures pr-build-status for Azure DevOps with AZDO API commands.",
+      "prompt": "We have a large cross-platform .NET project with Android, iOS, and Windows targets. Multiple test frameworks — xUnit for unit tests, NUnit for integration tests. CI is on Azure Pipelines. Set up the AI infrastructure.",
+      "expected_output": "Detects platform-specific code patterns (*.Android.cs, *.iOS.cs), creates platform-scoped instructions for Android and iOS, detects both xUnit and NUnit test projects, creates copilot-setup-steps with workload install, configures pr-build-status for Azure Pipelines with REST API commands.",
       "files": []
     },
     {
@@ -27,8 +27,8 @@
     },
     {
       "id": 5,
-      "prompt": "Our CI runs on Azure DevOps (not GitHub Actions) and we want the AI to be able to read build failures when it's working on PRs. Set up the full AI dev environment.",
-      "expected_output": "Detects azure-pipelines.yml or eng/pipelines/, configures pr-build-status with Azure DevOps REST API curl commands, still creates copilot-setup-steps.yml (that's GitHub-side), notes AZDO_PAT requirement in copilot-instructions.md.",
+      "prompt": "Our CI runs on Azure Pipelines and we want the AI to be able to read build failures when it's working on PRs. Set up the full AI dev environment.",
+      "expected_output": "Detects azure-pipelines.yml or eng/pipelines/, configures pr-build-status with Azure Pipelines REST API curl commands, still creates copilot-setup-steps.yml (GitHub-side), notes AZDO_PAT requirement in copilot-instructions.md.",
       "files": []
     }
   ]

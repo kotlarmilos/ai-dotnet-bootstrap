@@ -71,10 +71,6 @@ SKILL.md                    ← Entry point (5-step workflow)
 └── evals/                  ← Test cases
 ```
 
-## Distilled From
-
-[dotnet/maui](https://github.com/dotnet/maui) — 4 agents, 13 skills, 8 scoped instructions, 6 AI workflows.
-
 ## License
 
 MIT
