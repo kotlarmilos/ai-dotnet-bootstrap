@@ -14,6 +14,8 @@ Turn any .NET open-source repository into an AI-native development environment �
 ├── copilot-instructions.md          ← Teaches AI your repo (GENERATED)
 ├── instructions/*.instructions.md   ← Domain-specific AI guidance (GENERATED)
 ├── agents/pr.md                     ← PR review + fix workflow (CONFIGURED)
+├── agents/pr/post-gate.md           ← Multi-model fix exploration (CONFIGURED)
+├── agents/pr/SHARED-RULES.md        ← Model config + shared rules (CONFIGURED)
 ├── agents/write-tests-agent.md      ← Test writing dispatcher (CONFIGURED)
 ├── skills/                          ← Capabilities the AI can invoke
 │   ├── try-fix/                     ← Fix → test → report cycle (CONFIGURED)
@@ -98,7 +100,7 @@ Read `references/agents-and-skills.md` for the catalog and templates.
 For each file, read the template from `assets/templates/`, replace `{{PLACEHOLDERS}}` with analysis results, and write to `.github/`.
 
 **Agents** (how AI works on your repo):
-- `pr.md` — 4-phase PR workflow
+- `pr.md` + `pr/post-gate.md` + `pr/SHARED-RULES.md` — 4-phase PR workflow with multi-model try-fix exploration (Phase 3 dispatches try-fix to multiple AI models sequentially, each generating independent fix ideas, then cross-pollinates)
 - `write-tests-agent.md` — Test writing dispatcher
 
 **Skills** (what AI can do):
