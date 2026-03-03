@@ -1,5 +1,12 @@
-# AI-Native .NET Bootstrap
-# Toolkit for turning .NET repos into AI-native dev environments
+# OS
+.DS_Store
+Thumbs.db
 
-# Ignore temp/log directories created by agents
+# IDE
+.idea/
+.vs/
+*.user
+*.suo
+
+# Temp
 CustomAgentLogsTmp/
