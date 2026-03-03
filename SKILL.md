@@ -131,7 +131,7 @@ Generate a `README-AI.md` listing everything that was created. Then tell the use
 
 ## Key Concepts
 
-### The CI Feedback Loop (Why This Matters)
+### The CI Feedback Loop
 
 AI agents without CI feedback are like developers who never run their code. The feedback loop is:
 
