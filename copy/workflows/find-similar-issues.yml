@@ -1,0 +1,210 @@
+name: "Find Similar Issues with AI"
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: read
+  issues: write
+  models: read
+
+jobs:
+  find-similar-issues:
+    name: Find Similar Issues
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issues'
+
+    steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Create package.json
+        run: |
+          cat > package.json << 'PACKAGEJSON'
+          {
+            "name": "similar-issues-finder",
+            "version": "1.0.0",
+            "dependencies": {
+              "@octokit/rest": "^20.0.0"
+            }
+          }
+          PACKAGEJSON
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Find Similar Issues with GitHub Models
+        id: find-similar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_LABELS: ${{ toJSON(github.event.issue.labels.*.name) }}
+        run: |
+          node << 'EOF'
+          const { Octokit } = require("@octokit/rest");
+          const fs = require('fs');
+
+          const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+          const endpoint = "https://models.inference.ai.azure.com";
+          const modelName = "gpt-4o-mini";
+          const githubToken = process.env.GITHUB_TOKEN;
+
+          const issueNumber = parseInt(process.env.ISSUE_NUMBER);
+          const issueTitle = process.env.ISSUE_TITLE;
+          const issueBody = process.env.ISSUE_BODY || '';
+          const issueLabels = JSON.parse(process.env.ISSUE_LABELS || '[]');
+          const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
+
+          async function findSimilarIssues() {
+            try {
+              const allIssues = [];
+              let page = 1;
+              while (page <= 10) {
+                const response = await octokit.issues.listForRepo({
+                  owner, repo, state: 'all', per_page: 100, page,
+                  sort: 'updated', direction: 'desc'
+                });
+                if (response.data.length === 0) break;
+                allIssues.push(...response.data.filter(i =>
+                  i.number !== issueNumber && !i.pull_request));
+                page++;
+              }
+
+              const currentText = `${issueTitle}\n${issueBody}`.toLowerCase();
+              const currentWords = extractWords(currentText);
+
+              const candidates = allIssues.map(issue => {
+                const text = `${issue.title}\n${issue.body || ''}`.toLowerCase();
+                const words = extractWords(text);
+                const score = jaccardSimilarity(currentWords, words);
+                return { issue, score };
+              })
+              .filter(c => c.score > 0.10)
+              .sort((a, b) => b.score - a.score)
+              .slice(0, 50);
+
+              const topSimilar = await analyzeWithAI(candidates);
+              fs.writeFileSync('similar-issues.json',
+                JSON.stringify({ found: topSimilar.length > 0, issues: topSimilar }, null, 2));
+            } catch (error) {
+              console.error('Error:', error);
+              fs.writeFileSync('similar-issues.json',
+                JSON.stringify({ found: false, issues: [] }));
+            }
+          }
+
+          async function analyzeWithAI(candidates) {
+            const currentIssue = `Title: ${issueTitle}\n\nDescription: ${issueBody}`;
+            const results = [];
+
+            for (const { issue, score } of candidates) {
+              try {
+                const candidateText = `Title: ${issue.title}\n\nDescription: ${issue.body || 'No description'}`;
+                const response = await fetch(endpoint + "/chat/completions", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + githubToken
+                  },
+                  body: JSON.stringify({
+                    messages: [
+                      { role: "system", content: "You analyze GitHub issues for similarity. Respond with ONLY JSON: {\"score\": 0.0, \"reason\": \"brief explanation\"} where score is 0.0-1.0." },
+                      { role: "user", content: `Current Issue:\n${currentIssue}\n\n---\n\nCompare with:\n${candidateText}` }
+                    ],
+                    model: modelName, temperature: 0.3, max_tokens: 150
+                  })
+                });
+
+                const data = await response.json();
+                if (!data.choices?.[0]) continue;
+
+                let content = data.choices[0].message.content.trim()
+                  .replace(/^```json\s*/gm, '').replace(/^```\s*/gm, '').trim();
+                const result = JSON.parse(content);
+                const aiScore = parseFloat(result.score);
+
+                if (aiScore >= 0.60) {
+                  results.push({
+                    number: issue.number,
+                    title: issue.title,
+                    state: issue.state,
+                    url: issue.html_url,
+                    score: aiScore,
+                    reason: result.reason || '',
+                    labels: issue.labels.map(l => l.name),
+                    comments: issue.comments
+                  });
+                }
+                await new Promise(r => setTimeout(r, 100));
+              } catch (e) {
+                console.error(`Error analyzing #${issue.number}:`, e.message);
+              }
+            }
+            return results.sort((a, b) => b.score - a.score).slice(0, 5);
+          }
+
+          function extractWords(text) {
+            const common = new Set(['the','and','for','with','this','that','from','have','not','are','was','will','can','when','where','what','how','use','using','does','issue','problem','error','work','working']);
+            return [...new Set(
+              text.replace(/```[\s\S]*?```/g, '').replace(/https?:\/\/[^\s]+/g, '')
+                .replace(/[^a-z0-9\s]/gi, ' ').split(/\s+/)
+                .filter(w => w.length > 3 && !common.has(w))
+            )];
+          }
+
+          function jaccardSimilarity(a, b) {
+            const intersection = a.filter(w => b.includes(w));
+            const union = [...new Set([...a, ...b])];
+            return union.length > 0 ? intersection.length / union.length : 0;
+          }
+
+          findSimilarIssues();
+          EOF
+
+      - name: Post Comment with Results
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          node << 'EOF'
+          const { Octokit } = require("@octokit/rest");
+          const fs = require('fs');
+          const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+          const issueNumber = parseInt(process.env.ISSUE_NUMBER);
+          const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
+
+          async function postComment() {
+            try {
+              if (!fs.existsSync('similar-issues.json')) return;
+              const results = JSON.parse(fs.readFileSync('similar-issues.json', 'utf8'));
+              let body = '';
+
+              if (results.found && results.issues.length > 0) {
+                body = `## 🔍 Similar Issues Found\n\nWe found **${results.issues.length} similar issue(s)** that might be related.\n\n`;
+                results.issues.forEach((issue, i) => {
+                  const pct = Math.round(issue.score * 100);
+                  const state = issue.state === 'open' ? '🟢 Open' : '🔴 Closed';
+                  body += `<details>\n<summary><strong>${i+1}. <a href="${issue.url}">#${issue.number}</a>: ${issue.title}</strong> (${pct}% match)</summary>\n\n`;
+                  body += `**State:** ${state}  \n**Labels:** ${issue.labels.slice(0,5).map(l => '`'+l+'`').join(', ') || 'None'}  \n`;
+                  if (issue.reason) body += `**Why similar:** ${issue.reason}\n`;
+                  body += `\n</details>\n\n`;
+                });
+                body += `---\n\n*Automated by AI-powered similar issue detection.*`;
+              } else {
+                body = `## 🔍 Similar Issues Search\n\nNo similar issues found with high confidence. This may be a new or unique issue.\n\n---\n\n*Automated by AI-powered similar issue detection.*`;
+              }
+
+              await octokit.issues.createComment({ owner, repo, issue_number: issueNumber, body });
+            } catch (e) {
+              console.error('Error posting comment:', e);
+              process.exit(1);
+            }
+          }
+          postComment();
+          EOF

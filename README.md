@@ -1,92 +1,160 @@
-# AI-Native .NET Bootstrap Toolkit
+# AI-Native .NET Bootstrap
 
-Turn any .NET repo into an AI-native development environment.
+Turn any .NET open-source repository into an AI-native development environment.
 
-## What's In Here
+Point the onboarding agent at a cloned .NET repo on disk and it will scaffold the full AI infrastructure — instructions, skills, agents, workflows, and scripts.
 
-Two skills for GitHub Copilot (or any AI coding agent) and the concepts behind them:
+## Quick Start
 
-| Path | What It Does |
-|------|-------------|
-| `skills/bootstrap-dotnet-repo/SKILL.md` | Analyzes a .NET repo and generates 14 AI-native files (agents, prompts, hooks, CI) |
-| `skills/bootstrap-dotnet-repo/dotnet-stack-detection.md` | Reference tables for .NET stack detection (test frameworks, validation, logging, security) |
-| `skills/ai-native-audit/SKILL.md` | Scores a repo's AI-native readiness from L0 (nothing) to L5 (fully automated) |
+```bash
+# Clone the toolkit
+git clone https://github.com/user/ai-native-dotnet-bootstrap.git
 
-## How to Use
-
-### Bootstrap a .NET repo
-
-Copy `skills/bootstrap-dotnet-repo/SKILL.md` into the target repo as `.github/agents/ai-native-bootstrap.agent.md`, then in VS Code Copilot Chat:
-
-```
-@ai-native-bootstrap Analyze this repo and generate the full AI-native layer
+# Point it at your .NET repo
+cd /path/to/your-dotnet-repo
+copilot
+# Then: @onboard-repo /path/to/ai-native-dotnet-bootstrap
 ```
 
-Or hand the SKILL.md to any AI agent (Copilot CLI, GitHub Copilot coding agent) and say "follow these instructions on this repo."
+Or manually:
 
-The skill will:
-1. Discover the repo's build system, test framework, validation patterns, logging, architecture
-2. Generate 14 files customized to what it found — not generic templates
-3. Validate the output (no placeholders left, all frontmatter valid)
+```bash
+# 1. Copy the onboarding agent into your repo
+cp ai-native-dotnet-bootstrap/agent/onboard-repo.md /path/to/your-repo/.github/agents/
 
-### Audit an existing repo
-
-Same approach with `skills/ai-native-audit/SKILL.md`. It produces a scored report:
-
-```
-| Layer        | Score | Max | Status    |
-|--------------|-------|-----|-----------|
-| Foundation   | 5     | 6   | ⚠️ Partial |
-| Skills       | 3     | 4   | ✅ Complete |
-| Agents       | 4     | 5   | ⚠️ Partial |
-| Orchestration| 5     | 5   | ✅ Complete |
-| Automation   | 2     | 4   | ⚠️ Partial |
+# 2. Invoke it
+copilot
+/agent onboard-repo
+# "Please onboard this repo"
 ```
 
-## What Gets Generated
+## What Gets Created
 
-The bootstrap skill produces these files, all customized to the target repo:
+The agent analyzes your repo and creates a `.github/` tree:
 
 ```
-repo/
-├── AGENTS.md                              ← Architecture, test patterns, pipeline
-├── .github/
-│   ├── copilot-instructions.md            ← Build commands, conventions, directory map
+.github/
+├── copilot-instructions.md         ← GENERATED (repo-specific)
+├── README-AI.md                    ← GENERATED
+├── instructions/                   ← GENERATED (one per domain area)
+│   ├── tests.instructions.md
+│   └── ...
+├── agents/
+│   ├── pr.md                       ← TEMPLATED (filled with your build/test commands)
+│   ├── write-tests-agent.md        ← TEMPLATED
+│   └── learn-from-pr.md            ← COPIED (universal)
+├── skills/
+│   ├── try-fix/SKILL.md            ← TEMPLATED
+│   ├── run-tests/SKILL.md          ← TEMPLATED
+│   ├── pr-finalize/SKILL.md        ← COPIED (universal)
+│   ├── issue-triage/SKILL.md       ← COPIED (universal)
+│   ├── learn-from-pr/SKILL.md      ← COPIED (universal)
+│   └── ai-summary-comment/SKILL.md ← COPIED (universal)
+├── workflows/
+│   ├── copilot-setup-steps.yml     ← TEMPLATED
+│   ├── find-similar-issues.yml     ← COPIED (universal)
+│   └── ...
+└── prompts/
+    └── release-notes.prompt.md     ← TEMPLATED
+```
+
+## Feature Tiers
+
+| Tier | Description | Count |
+|------|-------------|-------|
+| **COPY** | Universal files that work on any .NET OSS repo as-is | 8 |
+| **TEMPLATE** | Skeletons filled with repo-specific values (build cmd, test framework, paths) | 8 |
+| **GENERATE** | Agent analyzes repo and produces from scratch | 3 |
+
+### COPY (drop-in universal)
+- `pr-finalize` skill — verifies PR title/description match implementation
+- `issue-triage` skill — queries and triages open issues
+- `find-reviewable-pr` skill — finds PRs needing review
+- `learn-from-pr` skill + agent — extracts lessons from completed PRs
+- `ai-summary-comment` skill — posts unified progress comments on PRs
+- `find-similar-issues.yml` workflow — AI duplicate detection on new issues
+- `inclusive-heat-sensor.yml` workflow — detects heated language
+- `agentics-maintenance.yml` workflow — auto-closes expired agentic issues
+
+### TEMPLATE (customized per repo)
+- `copilot-setup-steps.yml` — pre-builds repo for remote Copilot
+- PR agent — 4-phase workflow with repo's build/test commands
+- `write-tests-agent` — routes to correct test skill
+- `try-fix` skill — single-shot fix → test → report cycle
+- `run-tests` skill — build + run tests locally
+- `pr-build-status` skill — query CI for build results
+- `verify-tests-fail-without-fix` skill — proves tests catch bugs
+- `release-notes.prompt.md` — commit classifier + generator
+
+### GENERATE (produced by analysis)
+- `copilot-instructions.md` — full repo overview, structure, conventions
+- Pattern-scoped `*.instructions.md` — one per domain area detected
+- `README-AI.md` — documents all AI features installed
+
+## Repository Structure
+
+```
+ai-native-dotnet-bootstrap/
+├── README.md                    ← You are here
+├── agent/
+│   └── onboard-repo.md          ← The onboarding agent
+├── copy/                         ← Universal files (COPY tier)
+│   ├── skills/
+│   │   ├── pr-finalize/
+│   │   ├── issue-triage/
+│   │   ├── find-reviewable-pr/
+│   │   ├── learn-from-pr/
+│   │   └── ai-summary-comment/
+│   └── workflows/
+│       ├── find-similar-issues.yml
+│       ├── inclusive-heat-sensor.yml
+│       └── agentics-maintenance.yml
+├── templates/                    ← Skeleton files (TEMPLATE tier)
 │   ├── agents/
-│   │   ├── orchestrator.agent.md          ← Chains: plan → implement → test → review
-│   │   ├── planner.agent.md              ← Implementation planning
-│   │   ├── implementer.agent.md          ← Code writing
-│   │   ├── test-writer.agent.md          ← Test generation
-│   │   ├── reviewer.agent.md             ← Code review
-│   │   └── security-reviewer.agent.md    ← Security scanning
-│   ├── prompts/
-│   │   ├── fix-build.prompt.md           ← /fix-build slash command
-│   │   ├── add-test.prompt.md            ← /add-test slash command
-│   │   └── review-pr.prompt.md           ← /review-pr slash command
-│   ├── hooks/copilot-pre-commit.sh       ← Format + secrets check
-│   └── workflows/copilot-setup-steps.yml ← CI for Copilot coding agent
-└── .vscode/mcp.json                      ← MCP server config
+│   │   ├── pr.md
+│   │   └── write-tests-agent.md
+│   ├── skills/
+│   │   ├── try-fix/
+│   │   ├── run-tests/
+│   │   ├── pr-build-status/
+│   │   └── verify-tests-fail/
+│   ├── workflows/
+│   │   └── copilot-setup-steps.yml
+│   └── prompts/
+│       └── release-notes.prompt.md
+└── generator/                    ← Prompts/logic for GENERATE tier
+    ├── analyze-repo.md
+    ├── generate-copilot-instructions.md
+    ├── generate-scoped-instructions.md
+    └── generate-readme-ai.md
 ```
 
-## Maturity Levels
+## How the Onboarding Agent Works
 
-| Level | Name | You Have |
-|-------|------|----------|
-| L0 | Unaware | Nothing — agents fly blind |
-| L1 | Instructed | `copilot-instructions.md` + `AGENTS.md` |
-| L2 | Skilled | + Slash-command prompts |
-| L3 | Agentic | + Specialized agents |
-| L4 | Orchestrated | + Pipeline orchestrator |
-| L5 | Self-Improving | + CI guardrails + hooks |
+### Step 1: Analyze
+Reads `global.json`, `*.sln`, `*.csproj`, `README.md`, build scripts to detect:
+- .NET SDK version, build system, test framework
+- CI system (GitHub Actions, Azure DevOps)
+- Project areas and platform-specific code
+- Existing `.github/` AI files (skip/merge)
 
-## Evals
+### Step 2: Generate
+Produces repo-specific files using the generator prompts:
+- `copilot-instructions.md` with full repo context
+- Pattern-scoped instructions for each domain area found
 
-Both skills include eval cases following the [Anthropic skill-creator](https://github.com/anthropics/skills/tree/main/skills/skill-creator) format:
+### Step 3: Template
+Fills skeleton templates with detected values:
+- Build command, test command, project paths
+- CI pipeline names, test categories
 
-- `skills/bootstrap-dotnet-repo/evals/evals.json` — 4 scenarios (ML.NET-style, ASP.NET API, partial existing setup, monorepo)
-- `skills/ai-native-audit/evals/evals.json` — 4 scenarios (L0 empty, L1 foundation-only, L5 full bootstrap, placeholder content detection)
+### Step 4: Copy
+Drops in universal files unchanged.
 
-Each eval has a prompt, expected output description, and verifiable expectations that can be graded against the agent's actual output.
+### Step 5: Validate
+- Checks YAML syntax
+- Verifies glob patterns reference real paths
+- Tests that build command works
 
 ## License
 

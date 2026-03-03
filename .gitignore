@@ -1,19 +1,5 @@
-# OS
-.DS_Store
-Thumbs.db
+# AI-Native .NET Bootstrap
+# Toolkit for turning .NET repos into AI-native dev environments
 
-# IDE
-.idea/
-.vs/
-*.swp
-*.swo
-*~
-
-# Build artifacts
-bin/
-obj/
-*.user
-
-# Eval run outputs
-skills/*/evals/runs/
-skills/*/evals/outputs/
+# Ignore temp/log directories created by agents
+CustomAgentLogsTmp/
