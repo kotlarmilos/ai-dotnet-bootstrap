@@ -21,6 +21,8 @@ A skill that analyzes a .NET repo and scaffolds AI infrastructure: instructions,
 ├── workflows/copilot-setup-steps.yml ← Agent can build your repo remotely
 ├── agents/
 │   ├── pr.md                        ← PR review + fix workflow
+│   ├── pr/post-gate.md              ← Multi-model fix exploration
+│   ├── pr/SHARED-RULES.md           ← Model config + shared rules
 │   ├── write-tests-agent.md         ← Test writer
 │   └── learn-from-pr.md             ← Continuous improvement
 ├── skills/
