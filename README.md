@@ -78,6 +78,15 @@ Three components:
 | inclusive-heat-sensor | [`assets/workflows/inclusive-heat-sensor.yml`](assets/workflows/inclusive-heat-sensor.yml) |
 | release-notes | [`assets/templates/release-notes.prompt.md`](assets/templates/release-notes.prompt.md) |
 
+### Repo Health Monitoring (GitHub only, requires `gh-aw`)
+
+| Component | Source |
+|-----------|--------|
+| Setup skill | [`assets/skills/setup-repo-health-check.md`](assets/skills/setup-repo-health-check.md) |
+| Health check orchestrator | [`assets/templates/repo-health-check.md`](assets/templates/repo-health-check.md) |
+| Investigation worker | [`assets/templates/repo-health-investigate.md`](assets/templates/repo-health-investigate.md) |
+| Dashboard groomer | [`assets/templates/repo-health-groom.md`](assets/templates/repo-health-groom.md) |
+
 ## Quick Start
 
 1. Add this skill to your Copilot configuration
@@ -95,7 +104,8 @@ SKILL.md                    ← Entry point (Required → Optional flow)
 │   ├── repo-analysis.md         Detection commands
 │   ├── ci-feedback-loop.md      Feedback loop details
 │   ├── generating-instructions.md  Instruction templates
-│   └── agents-and-skills.md     Optional tier catalog
+│   ├── agents-and-skills.md     Optional tier catalog
+│   └── repo-health-check.md     Health monitoring architecture
 ├── assets/
 │   ├── core/              ← Required: AGENTS.md, CI setup
 │   ├── templates/         ← Optional: fill in {{PLACEHOLDERS}}

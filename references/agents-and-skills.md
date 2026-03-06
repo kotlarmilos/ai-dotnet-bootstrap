@@ -82,7 +82,7 @@ Skills are focused capabilities. Each does one thing well.
 
 ---
 
-## Agentic Workflows (require gh-aw)
+## Agentic Workflows (GitHub only, require gh-aw)
 
 These are autonomous workflows compiled and run via `gh-aw`. They require separate setup — use the `setup-repo-health-check` skill to deploy.
 

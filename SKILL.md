@@ -130,11 +130,11 @@ Copy files from `assets/skills/` and `assets/workflows/` into the target repo. T
 
 Skip any files that already exist in the target repo.
 
-### Optional: Repo Health Monitoring
+### Optional: Repo Health Monitoring (GitHub only)
 
-If the user asks for health monitoring, repo health checks, or pipeline observability, use the `setup-repo-health-check` skill (`assets/skills/setup-repo-health-check.md`). This requires `gh-aw` and sets up agentic workflows that maintain a pinned health dashboard issue.
+If the user asks for health monitoring or pipeline observability, use the `setup-repo-health-check` skill (`assets/skills/setup-repo-health-check.md`). Requires `gh-aw` (GitHub Agentic Workflows) and sets up workflows that maintain a pinned health dashboard issue.
 
-This is NOT part of the core 5-step bootstrap — it's a post-onboarding add-on for repos that want continuous health visibility. See `references/repo-health-check.md` for architecture details.
+Not part of the core bootstrap — it's a post-onboarding add-on. See `references/repo-health-check.md` for architecture details.
 
 ---
 
@@ -200,7 +200,8 @@ SKILL.md                    ← You are here (entry point)
 │   ├── repo-analysis.md         Detection commands
 │   ├── ci-feedback-loop.md      Feedback loop details
 │   ├── generating-instructions.md  Instruction templates
-│   └── agents-and-skills.md     Optional tier catalog
+│   ├── agents-and-skills.md     Optional tier catalog
+│   └── repo-health-check.md     Health monitoring architecture
 ├── assets/
 │   ├── core/              ← Required files (AGENTS.md, CI setup)
 │   ├── templates/         ← Optional: fill in {{PLACEHOLDERS}}
