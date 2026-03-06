@@ -5,43 +5,13 @@ description: Turn any .NET repository into an AI-native development environment.
 
 # Bootstrap AI-Native .NET
 
-Turn any .NET open-source repository into an AI-native development environment — with instructions that teach the AI your codebase, skills that let it act, and a CI feedback loop so it can learn from build results.
+Turn any .NET repository into an AI-native development environment.
 
-## What This Creates
-
-```
-.github/
-├── copilot-instructions.md          ← Teaches AI your repo (GENERATED)
-├── instructions/*.instructions.md   ← Domain-specific AI guidance (GENERATED)
-├── agents/pr.md                     ← PR review + fix workflow (CONFIGURED)
-├── agents/write-tests-agent.md      ← Test writing dispatcher (CONFIGURED)
-├── skills/                          ← Capabilities the AI can invoke
-│   ├── try-fix/                     ← Fix → test → report cycle (CONFIGURED)
-│   ├── run-tests/                   ← Build + run tests locally (CONFIGURED)
-│   ├── pr-finalize/                 ← Verify PR quality (UNIVERSAL)
-│   ├── pr-build-status/             ← Read CI results (CONFIGURED)
-│   ├── issue-triage/                ← Triage open issues (UNIVERSAL)
-│   ├── find-reviewable-pr/          ← Find PRs to review (UNIVERSAL)
-│   ├── learn-from-pr/               ← Extract lessons from PRs (UNIVERSAL)
-│   └── ai-summary-comment/          ← Post progress to PRs (UNIVERSAL)
-├── workflows/
-│   ├── copilot-setup-steps.yml      ← Remote Copilot can build (CONFIGURED)
-│   ├── find-similar-issues.yml      ← AI duplicate detection (UNIVERSAL)
-│   └── inclusive-heat-sensor.yml    ← Detects heated comments (UNIVERSAL)
-└── prompts/
-    └── release-notes.prompt.md      ← Generate release notes (CONFIGURED)
-```
-
-Files are either:
-- **UNIVERSAL** — Copied as-is, works on any repo
-- **CONFIGURED** — Template filled with your repo's build/test commands
-- **GENERATED** — Produced by analyzing your specific repo
+Two tiers: **Required** covers the core setup. **Optional** adds specialized agents, skills, and workflows.
 
 ---
 
-## Steps
-
-There are 5 steps. Go in order. Each step has a reference doc in `references/` — read it just-in-time, not upfront.
+## Required
 
 ### Step 1: Analyze the Repo
 
@@ -59,7 +29,7 @@ You're detecting: SDK version, build command, test framework, test projects, CI 
 | .NET SDK | 9.0.100 |
 | Build | `dotnet build Solution.sln` |
 | Tests | xUnit, 3 projects |
-| CI | GitHub Actions (ci.yml) |
+| CI | GitHub Actions (ci.yml) / Azure Pipelines |
 | Structure | src/Core/, src/Api/, tests/ |
 | Platforms | None (standard .NET) |
 | Existing AI | None |
@@ -67,51 +37,96 @@ You're detecting: SDK version, build command, test framework, test projects, CI 
 
 **Ask the user to confirm** before moving on. They may correct the build command or add context.
 
-### Step 2: Set Up the CI Feedback Loop
+### Step 2: Create AGENTS.md
 
-This is the most important step. Without it, AI agents are blind — they can make changes but can't see if those changes break CI.
+Read `references/core-setup.md` for details.
 
-Read `references/ci-feedback-loop.md` for details.
+A markdown file that tells AI agents what your repo is, how to build/test it, and what conventions to follow.
 
-Three components, in this order:
+**Template**: `assets/core/AGENTS.md`
 
-1. **`copilot-setup-steps.yml`** — So GitHub's remote Copilot Coding Agent can build your repo. Uses the template in `assets/templates/copilot-setup-steps.yml`, filled with your SDK version and build command.
+**Place at**: `AGENTS.md` in the repo root (cross-tool standard — supported by GitHub Copilot, Cursor, Claude, and others)
 
-2. **`pr-build-status` skill** — So any agent (local or remote) can query CI results for a PR. Reads GitHub Actions job status, failed job logs, extracts error messages. Uses template in `assets/templates/pr-build-status.md`.
+Fill in the template using the analysis from Step 1. Read 3-5 representative files from the repo to understand conventions before writing. Keep it under 100 lines — agents read this on every interaction.
 
-3. **`ci-doctor` workflow** (optional) — Automatic investigation when CI fails on main. Uses GitHub Models AI to analyze failure logs and create diagnostic issues.
+A good AGENTS.md has:
+- Real build/test commands (not "run the build" but `dotnet build MyApp.sln`)
+- Project structure map (key directories, one-line descriptions)
+- 3-5 conventions the AI wouldn't know from code alone
+- Agent behavior rules (branch strategy, testing expectations)
 
-This gives agents the feedback loop: `make change → push → CI runs → read results → iterate`.
+### Step 3: Set Up the RL Environment
 
-### Step 3: Generate Repo-Specific Instructions
+Read `references/core-setup.md` and `references/ci-feedback-loop.md` for details.
 
-Read `references/generating-instructions.md` for the generation prompts.
+The feedback loop for code agents:
 
-1. **`copilot-instructions.md`** — The single most impactful file. Teaches AI your repo's structure, build commands, conventions, project areas. Read 3-5 representative files from the repo to understand conventions before writing.
+```
+Agent gets task (issue assigned or scheduled)
+    ↓
+Agent reads AGENTS.md (understands repo)
+    ↓
+Agent makes code changes
+    ↓
+Push to PR → CI runs
+    ↓
+Agent reads CI results  ← THIS IS THE KEY PIECE
+    ↓
+CI pass → ready for review
+CI fail → diagnose, fix, push again (loop)
+```
 
-2. **Scoped instructions** — One per domain area that has distinct conventions. Test projects almost always get one. Platform-specific code gets one if present. Only create them for areas where the AI would make mistakes without guidance.
+**Two components**:
 
-### Step 4: Configure Agents and Skills
+1. **Agent build environment** — So agents (remote or CI) can build the repo.
+   - **GitHub Actions**: Uses `assets/core/copilot-setup-steps.yml`. Place at `.github/workflows/copilot-setup-steps.yml`.
+   - **Azure Pipelines**: Uses `assets/core/agent-build-pipeline.yml`. Place at the repo root or `eng/pipelines/`.
+
+2. **`pr-build-status` skill** — Agent can read CI failure logs. Uses `assets/core/pr-build-status.md`, filled with your CI system details (supports both GitHub Actions and Azure Pipelines). Place at `.github/skills/pr-build-status/SKILL.md`.
+
+---
+
+## Optional
+
+Everything below adds specialized capabilities. Install what you need, skip what you don't.
+
+**Ask the user**: "Do you want the full setup, or is the core (AGENTS.md + CI feedback loop) enough?"
+
+### Step 4: Generate Scoped Instructions
+
+Read `references/generating-instructions.md` for generation prompts.
+
+Scoped `.instructions.md` files activate only when the AI touches matching files. Create one per domain area with distinct conventions:
+
+- **Test projects** — almost always worth it (naming, assertion style, fixtures)
+- **Platform-specific code** — if targeting Android/iOS/WASM
+- **Config directories** — if templates or config have special rules
+
+Skip for areas where the global AGENTS.md covers things adequately.
+
+### Step 5: Configure Agents and Skills
 
 Read `references/agents-and-skills.md` for the catalog and templates.
 
 For each file, read the template from `assets/templates/`, replace `{{PLACEHOLDERS}}` with analysis results, and write to `.github/`.
 
-**Agents** (how AI works on your repo):
-- `pr.md` — 4-phase PR workflow
+**Agents** (multi-step workflows):
+- `pr.md` — 4-phase PR review + fix workflow
 - `write-tests-agent.md` — Test writing dispatcher
+- `learn-from-pr.md` — Continuous improvement from PRs
 
-**Skills** (what AI can do):
-- `try-fix` — Single-shot fix → test → report
+**Skills** (focused capabilities):
+- `try-fix` — Single-shot fix → test → report cycle
 - `run-tests` — Build + run tests with filtering
 - `verify-tests-fail` — Prove tests catch bugs
 
-### Step 5: Copy Universal Files
+### Step 6: Copy Universal Files
 
-Copy files from `assets/skills/` and `assets/workflows/` into the target repo. These work on any GitHub repo unchanged.
+Copy files from `assets/skills/` and `assets/workflows/` into the target repo. These work on any GitHub repo unchanged. For Azure DevOps repos, the workflow YAMLs need to be adapted to Azure Pipelines format.
 
 **Skills**: pr-finalize, issue-triage, find-reviewable-pr, learn-from-pr, ai-summary-comment
 **Workflows**: find-similar-issues, inclusive-heat-sensor
+**Prompts**: release-notes.prompt.md
 
 Skip any files that already exist in the target repo.
 
@@ -119,43 +134,69 @@ Skip any files that already exist in the target repo.
 
 ## After Onboarding
 
-Generate a `README-AI.md` listing everything that was created. Then tell the user:
+Tell the user:
 
-1. Review `copilot-instructions.md` — it's the highest-impact file
-2. Review scoped instructions — verify glob patterns match your project
-3. Commit: `git add .github/ && git commit -m "Add AI-native development infrastructure"`
-4. Test it: open a PR, ask Copilot to review it
-5. After your first PR, use `learn-from-pr` to improve the instructions
+1. Review `AGENTS.md`
+2. Test it: assign an issue to an agent or open a PR and ask for review
+3. Commit the generated files
+4. After your first agent PR, use `learn-from-pr` to improve the instructions
 
 ---
 
-## Key Concepts
+## What Gets Created
 
-### The CI Feedback Loop
-
-AI agents without CI feedback are like developers who never run their code. The feedback loop is:
-
+### Required (Core)
 ```
-Agent writes code
-    ↓
-Push to PR branch
-    ↓
-CI runs (build, test, lint)
-    ↓
-Agent reads CI results ← THIS IS THE MISSING PIECE in most repos
-    ↓
-Agent fixes failures
-    ↓
-Repeat until green
+AGENTS.md                                        ← System prompt for the repo (repo root)
+
+# GitHub Actions:
+.github/
+├── workflows/copilot-setup-steps.yml            ← Agent build environment
+└── skills/pr-build-status/SKILL.md              ← Agent reads CI results
+
+# Azure Pipelines:
+agent-build-pipeline.yml                         ← Agent build environment
+.github/skills/pr-build-status/SKILL.md          ← Agent reads CI results
 ```
 
-Three things make this work:
-1. **`copilot-setup-steps.yml`** — Remote agent can build the repo
-2. **`pr-build-status` skill** — Agent can read what failed and why
-3. **Clear test commands in instructions** — Agent knows how to run tests locally
+### Optional (Enhanced)
+```
+.github/
+├── instructions/*.instructions.md   ← Scoped guidance (GENERATED)
+├── agents/
+│   ├── pr.md                        ← PR review + fix workflow
+│   ├── write-tests-agent.md         ← Test writer
+│   └── learn-from-pr.md             ← Continuous improvement
+├── skills/
+│   ├── try-fix/                     ← Fix → test → report cycle
+│   ├── run-tests/                   ← Build + run tests locally
+│   ├── verify-tests-fail/           ← Prove tests catch bugs
+│   ├── pr-finalize/                 ← PR quality check
+│   ├── find-reviewable-pr/          ← Find PRs to review
+│   ├── issue-triage/                ← Triage open issues
+│   ├── learn-from-pr/               ← Extract lessons from PRs
+│   └── ai-summary-comment/          ← Post progress to PRs
+├── workflows/
+│   ├── find-similar-issues.yml      ← AI duplicate detection
+│   └── inclusive-heat-sensor.yml    ← Community health
+└── prompts/
+    └── release-notes.prompt.md      ← Classified release notes
+```
 
-### File Layout
+## File Layout
 
-- This SKILL.md is the entry point
-- `references/` has detailed guides — read only when needed
-- `assets/` has the actual files to copy or fill in
+```
+SKILL.md                    ← You are here (entry point)
+├── references/
+│   ├── core-setup.md            Required tier guide
+│   ├── repo-analysis.md         Detection commands
+│   ├── ci-feedback-loop.md      Feedback loop details
+│   ├── generating-instructions.md  Instruction templates
+│   └── agents-and-skills.md     Optional tier catalog
+├── assets/
+│   ├── core/              ← Required files (AGENTS.md, CI setup)
+│   ├── templates/         ← Optional: fill in {{PLACEHOLDERS}}
+│   ├── skills/            ← Optional: copy unchanged
+│   └── workflows/         ← Optional: copy unchanged
+└── evals/                 ← Test cases
+```

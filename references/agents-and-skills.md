@@ -52,7 +52,7 @@ Skills are focused capabilities. Each does one thing well.
 |-------|----------|-----------------|--------------|
 | **try-fix** | `assets/templates/try-fix.md` | BUILD_COMMAND, TEST_COMMAND | Always — enables fix→test→report cycle |
 | **run-tests** | `assets/templates/run-tests.md` | TEST_COMMAND_*, TEST_PROJECTS_TABLE | Always — agents need to run tests |
-| **pr-build-status** | `assets/templates/pr-build-status.md` | CI_SYSTEM, PIPELINE_NAMES | Always — the CI feedback loop |
+| **pr-build-status** | `assets/core/pr-build-status.md` | CI_SYSTEM, PIPELINE_NAMES | Always — the CI feedback loop |
 | **verify-tests-fail** | `assets/templates/verify-tests-fail.md` | BUILD_COMMAND, TEST_COMMAND | If repo has bug-fix PRs |
 
 ### Universal Skills (copy as-is)
@@ -114,13 +114,11 @@ Never overwrite without asking.
 
 ## Choosing What to Install
 
-### Minimum Viable (every repo)
+### Minimum Viable (every repo) — See Required tier
 
-- `copilot-instructions.md` (generated)
-- `copilot-setup-steps.yml` (CI feedback)
-- `pr-build-status` skill (CI feedback)
-- `pr.md` agent
-- `run-tests` skill
+- `copilot-instructions.md` / AGENTS.md (generated) — `assets/core/AGENTS.md` (place at repo root)
+- `copilot-setup-steps.yml` (CI feedback) — `assets/core/copilot-setup-steps.yml`
+- `pr-build-status` skill (CI feedback) — `assets/core/pr-build-status.md`
 
 ### Recommended (active OSS repo)
 

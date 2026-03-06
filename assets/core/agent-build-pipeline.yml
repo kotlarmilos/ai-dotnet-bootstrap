@@ -1,0 +1,41 @@
+# Agent Build Environment — Azure Pipelines
+#
+# Equivalent of copilot-setup-steps.yml for Azure DevOps.
+# Ensures the CI pipeline builds the repo so agents can read results.
+#
+# This is a TEMPLATE. Replace {{PLACEHOLDERS}} with your repo's values.
+
+trigger:
+  branches:
+    include:
+      - '{{DEFAULT_BRANCH}}'
+  paths:
+    include:
+      - '**'
+
+pr:
+  branches:
+    include:
+      - '{{DEFAULT_BRANCH}}'
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+steps:
+  - task: UseDotNet@2
+    displayName: 'Setup .NET SDK'
+    inputs:
+      version: '{{DOTNET_VERSION}}'
+
+  - script: {{RESTORE_COMMAND}}
+    displayName: 'Restore'
+
+  - script: {{BUILD_COMMAND}}
+    displayName: 'Build'
+
+  - script: {{TEST_COMMAND}}
+    displayName: 'Test'

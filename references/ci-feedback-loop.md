@@ -26,7 +26,7 @@ Push again → repeat until green
 
 **Why**: Without this, remote Copilot starts from scratch every time — no SDK, no restored packages, no built dependencies. With this, it starts ready to code.
 
-**Template**: `assets/templates/copilot-setup-steps.yml`
+**Template**: `assets/core/copilot-setup-steps.yml`
 
 **Fill in**:
 - `{{DOTNET_VERSION}}` — From `global.json` (e.g., `9.0.100`)
@@ -47,7 +47,7 @@ Push again → repeat until green
 2. Read the failure logs
 3. Extract the actual error (not 10,000 lines of build output)
 
-**Template**: `assets/templates/pr-build-status.md`
+**Template**: `assets/core/pr-build-status.md`
 
 **Fill in**:
 - `{{CI_SYSTEM}}` — `azure-pipelines` or `github-actions`
