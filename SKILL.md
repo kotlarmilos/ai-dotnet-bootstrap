@@ -117,6 +117,12 @@ Copy files from `assets/skills/` and `assets/workflows/` into the target repo. T
 
 Skip any files that already exist in the target repo.
 
+### Optional: Repo Health Monitoring
+
+If the user asks for health monitoring, repo health checks, or pipeline observability, use the `setup-repo-health-check` skill (`assets/skills/setup-repo-health-check.md`). This requires `gh-aw` and sets up agentic workflows that maintain a pinned health dashboard issue.
+
+This is NOT part of the core 5-step bootstrap — it's a post-onboarding add-on for repos that want continuous health visibility. See `references/repo-health-check.md` for architecture details.
+
 ---
 
 ## After Onboarding
