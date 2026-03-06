@@ -13,15 +13,23 @@ Agents are multi-step workflows. They orchestrate multiple tools and skills.
 4-phase workflow:
 1. **Pre-Flight** — Read issue/PR, understand the problem
 2. **Gate** — Verify tests exist and catch the issue
-3. **Fix** — Implement and test a fix (if needed)
+3. **Fix** — Multi-model exploration: invoke `try-fix` with multiple AI models sequentially, each generating an independent fix idea, then cross-pollinate and select the best
 4. **Report** — Summarize findings, post comment, create PR
 
-**Template**: `assets/templates/pr.md`
+The PR agent is split across multiple files:
+- `pr.md` — Phases 1-2 (Pre-Flight, Gate)
+- `pr/post-gate.md` — Phases 3-4 (multi-model Fix, Report)
+- `pr/SHARED-RULES.md` — Common rules including model configuration
+
+**Templates**: `assets/templates/pr.md`, `assets/templates/pr/post-gate.md`, `assets/templates/pr/SHARED-RULES.md`
 
 **Placeholders**:
 - `{{BUILD_COMMAND}}` — How to build
 - `{{TEST_COMMAND}}` — How to run tests
 - `{{FORMAT_COMMAND}}` — How to format code
+- `{{DEFAULT_BRANCH}}` — Default branch name
+- `{{MODEL_COUNT}}` — Number of AI models to use for try-fix
+- `{{MODEL_TABLE}}` — Markdown table of models (order + model ID)
 
 ### write-tests-agent.md — Test Writer
 

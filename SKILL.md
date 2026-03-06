@@ -111,7 +111,7 @@ Read `references/agents-and-skills.md` for the catalog and templates.
 For each file, read the template from `assets/templates/`, replace `{{PLACEHOLDERS}}` with analysis results, and write to `.github/`.
 
 **Agents** (multi-step workflows):
-- `pr.md` — 4-phase PR review + fix workflow
+- `pr.md` + `pr/post-gate.md` + `pr/SHARED-RULES.md` — 4-phase PR workflow with multi-model fix exploration
 - `write-tests-agent.md` — Test writing dispatcher
 - `learn-from-pr.md` — Continuous improvement from PRs
 
@@ -164,7 +164,9 @@ agent-build-pipeline.yml                         ← Agent build environment
 .github/
 ├── instructions/*.instructions.md   ← Scoped guidance (GENERATED)
 ├── agents/
-│   ├── pr.md                        ← PR review + fix workflow
+│   ├── pr.md                        ← PR review + fix (phases 1-2)
+│   ├── pr/post-gate.md              ← Multi-model fix + report (phases 3-4)
+│   ├── pr/SHARED-RULES.md           ← Common rules + model config
 │   ├── write-tests-agent.md         ← Test writer
 │   └── learn-from-pr.md             ← Continuous improvement
 ├── skills/

@@ -46,9 +46,9 @@ Three components:
 
 | Agent | Template | What it does |
 |-------|----------|-------------|
-| PR workflow | [`assets/templates/pr.md`](assets/templates/pr.md) | 4-phase PR review + fix |
-| Test writer | [`assets/templates/write-tests-agent.md`](assets/templates/write-tests-agent.md) | Routes to correct test project |
-| Learn from PR | [`assets/templates/learn-from-pr.md`](assets/templates/learn-from-pr.md) | Continuous improvement |
+| PR workflow | [`pr.md`](assets/templates/pr.md) + [`pr/post-gate.md`](assets/templates/pr/post-gate.md) | 4-phase PR review + multi-model fix |
+| Test writer | [`write-tests-agent.md`](assets/templates/write-tests-agent.md) | Routes to correct test project |
+| Learn from PR | [`learn-from-pr.md`](assets/templates/learn-from-pr.md) | Continuous improvement |
 
 ### Skills (focused capabilities)
 
