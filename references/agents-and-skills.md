@@ -82,6 +82,22 @@ Skills are focused capabilities. Each does one thing well.
 
 ---
 
+## Agentic Workflows (require gh-aw)
+
+These are autonomous workflows compiled and run via `gh-aw`. They require separate setup — use the `setup-repo-health-check` skill to deploy.
+
+| Workflow | Template | What It Does | Install When |
+|----------|----------|-------------|--------------|
+| **repo-health-check** | `assets/templates/repo-health-check.md` | Daily health dashboard — collects data on issues, PRs, CI; diffs against previous run; updates pinned dashboard issue | Active repos with CI |
+| **repo-health-investigate** | `assets/templates/repo-health-investigate.md` | Deep-dive on critical findings — dispatched by orchestrator for root cause analysis | With health-check |
+| **repo-health-groom** | `assets/templates/repo-health-groom.md` | Dashboard maintenance — links investigation results, hides stale comments, enforces sanity | With health-check |
+
+**Setup skill**: `assets/skills/setup-repo-health-check.md` — Interactive skill that walks through repo discovery, baseline creation, template configuration, and compilation.
+
+**Reference**: `references/repo-health-check.md` — Full architecture guide.
+
+---
+
 ## Installation
 
 ### For Templates
